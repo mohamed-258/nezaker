@@ -172,7 +172,8 @@
             </div>
 
             <!-- Simplified Streamlined Navigation -->
-            <nav class="nav-menu">
+            <nav class="nav-menu" aria-label="التنقل الرئيسي">
+                <span class="nav-group-label">الرئيسية</span>
                 <a href="#home" class="nav-item active" onclick="switchTab('home')">
                     <i class="fa-solid fa-house-chimney-medical"></i>
                     <span data-i18n="nav_home">الرئيسية وجلسات المذاكرة</span>
@@ -182,6 +183,7 @@
                     <i class="fa-solid fa-calendar-days"></i>
                     <span data-i18n="nav_planner">جدول المذاكرة والتقويم</span>
                 </a>
+                <span class="nav-group-label">التعلّم</span>
                 <a href="#lectures" class="nav-item" onclick="switchTab('lectures')">
                     <i class="fa-solid fa-book-medical"></i>
                     <span data-i18n="nav_lectures">المحاضرات والمذاكرة الشاملة</span>
@@ -195,11 +197,13 @@
                     <i class="fa-solid fa-layer-group"></i>
                     <span data-i18n="nav_flashcards">بطاقات الاستذكار (SRS)</span>
                 </a>
+                <span class="nav-group-label">المراجعة</span>
                 <a href="#redo" class="nav-item" onclick="switchTab('redo')">
                     <i class="fa-solid fa-rotate-left"></i>
                     <span data-i18n="nav_redo">الإعادة والمراجعة</span>
                     <span class="nav-badge" id="redoTotalBadge" style="display: none; background: #ef4444; color: white;">0</span>
                 </a>
+                <span class="nav-group-label">الأدوات</span>
                 <a href="#audio" class="nav-item" onclick="switchTab('audio')">
                     <i class="fa-solid fa-microphone-lines"></i>
                     <span data-i18n="nav_audio">المحاضرات الصوتية والدكاترة</span>
@@ -222,6 +226,7 @@
                     <i class="fa-solid fa-bolt-lightning text-accent"></i>
                     <span data-i18n="nav_tokens">استهلاك الـ API والتوكينز ⚡</span>
                 </a>
+                <span class="nav-group-label nav-group-label-system">النظام</span>
                 <a href="#settings" class="nav-item" onclick="switchTab('settings')">
                     <i class="fa-solid fa-sliders"></i>
                     <span data-i18n="nav_settings">الإعدادات والـ API</span>
