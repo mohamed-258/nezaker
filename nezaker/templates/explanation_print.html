@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="{{ 'ar' if lang == 'ar' else 'en' }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شرح المحاضرة | {{ lec.title }}</title>
+    <!-- Google Fonts Arabic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- KaTeX for Medical & Physiological Formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --accent: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            padding: 30px;
+            font-size: 14px;
+            line-height: 1.7;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* Fixed Action Bar for on-screen view */
+        .action-bar {
+            position: sticky;
+            top: 15px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            max-width: 760px;
+            margin: 0 auto 25px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            z-index: 1000;
+        }
+
+        .action-bar .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 15px;
+            color: #38bdf8;
+        }
+
+        .action-bar .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-act {
+            border: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+        }
+        .btn-pdf:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #0d9488, #0f766e);
+            color: #ffffff;
+        }
+        .btn-print:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+        }
+
+        /* Printable Document Container - Perfectly scaled for A4 portrait */
+        .document-container {
+            max-width: 760px;
+            width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 36px 40px;
+            border-radius: 16px;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* Document Header */
+        .doc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2.5px solid var(--primary);
+            padding-bottom: 18px;
+            margin-bottom: 25px;
+        }
+
+        .doc-title-group h1 {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .doc-title-group .doc-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 15px;
+        }
+
+        .doc-badge {
+            background: #f0fdfa;
+            color: var(--primary);
+            border: 1px solid #ccfbf1;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Explanation Content Styling */
+        .exp-rendered-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #1e293b;
+        }
+
+        .exp-rendered-content h1 {
+            font-size: 20px;
+            color: #0f766e;
+            margin: 20px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #0d9488;
+        }
+
+        .exp-rendered-content h2 {
+            font-size: 16px;
+            font-weight: 800;
+            color: #1e293b;
+            background: #f1f5f9;
+            border-right: 4px solid var(--primary);
+            padding: 8px 14px;
+            border-radius: 6px;
+            margin: 24px 0 12px 0;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        .exp-rendered-content h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f766e;
+            margin: 16px 0 8px 0;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        .exp-rendered-content p {
+            margin-bottom: 12px;
+        }
+
+        .exp-rendered-content ul, .exp-rendered-content ol {
+            margin: 10px 24px 16px 24px;
+        }
+
+        .exp-rendered-content li {
+            margin-bottom: 6px;
+        }
+
+        .exp-rendered-content strong {
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        /* Embedded Images and Slides */
+        .exp-rendered-content img {
+            max-width: 100%;
+            max-height: 440px;
+            display: block;
+            margin: 18px auto;
+            border-radius: 10px;
+            border: 1.5px solid #94a3b8;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            object-fit: contain;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        /* Clean Medical Tables */
+        .exp-rendered-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+            font-size: 13px;
+            border: 1.5px solid #94a3b8 !important;
+            page-break-inside: auto;
+        }
+
+        .exp-rendered-content thead {
+            display: table-header-group;
+        }
+
+        .exp-rendered-content tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        .exp-rendered-content th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            padding: 10px 14px;
+            text-align: right;
+            border: 1.5px solid #94a3b8 !important;
+            font-weight: 800;
+            font-size: 13px;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .exp-rendered-content td {
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1 !important;
+            vertical-align: top;
+            line-height: 1.55;
+            color: #1e293b;
+        }
+
+        .exp-rendered-content tr:nth-child(even) td {
+            background-color: #f8fafc !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .exp-rendered-content td:first-child {
+            font-weight: 700;
+            background-color: #f1f5f9 !important;
+        }
+
+        .exp-rendered-content .mermaid {
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 14px;
+            margin: 18px 0;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+
+        .doc-footer {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Print Media Query */
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+            *, *:before, *:after {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            .action-bar {
+                display: none !important;
+            }
+            .document-container {
+                max-width: 100% !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 10px 15px !important;
+                margin: 0 !important;
+            }
+            .exp-rendered-content h2 {
+                background: #f1f5f9 !important;
+                border-right: 4px solid var(--primary) !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
+            .exp-rendered-content table {
+                border: 1.5px solid #94a3b8 !important;
+            }
+            .exp-rendered-content th, .exp-rendered-content td {
+                border-color: #94a3b8 !important;
+            }
+            tr {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+            img {
+                max-width: 100% !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+        /* KaTeX & Mermaid styles */
+        .katex-display-wrapper {
+            direction: ltr !important;
+            text-align: center;
+            margin: 16px 0;
+            padding: 12px 18px;
+            background: rgba(241, 245, 249, 0.7);
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .katex {
+            direction: ltr !important;
+            unicode-bidi: isolate !important;
+            font-size: 1.1em;
+        }
+        .katex-inline-wrapper {
+            direction: ltr !important;
+            display: inline-block;
+            padding: 1px 3px;
+            unicode-bidi: isolate !important;
+        }
+        .mermaid, .mermaid svg, .mermaid text {
+            direction: ltr !important;
+            text-align: center !important;
+            unicode-bidi: isolate !important;
+        }
+        .exp-rendered-content p,
+        .exp-rendered-content li,
+        .exp-rendered-content h1,
+        .exp-rendered-content h2,
+        .exp-rendered-content h3,
+        .exp-rendered-content h4,
+        .exp-rendered-content h5,
+        .exp-rendered-content h6 {
+            unicode-bidi: plaintext;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- On-screen Sticky Action Bar -->
+    <div class="action-bar" id="actionBar">
+        <div class="brand">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>نُذاكِر | الشرح الطبي المنسق</span>
+        </div>
+        <div class="btn-group">
+            <button class="btn-act btn-pdf" onclick="exportToPdf()">
+                <i class="fa-solid fa-file-pdf"></i> تحميل PDF منسق
+            </button>
+            <button class="btn-act btn-print" onclick="window.print()">
+                <i class="fa-solid fa-print"></i> طباعة / حفظ
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Document -->
+    <div class="document-container" id="pdfDocumentArea">
+        <!-- Header -->
+        <header class="doc-header">
+            <div class="doc-title-group">
+                <h1>🩺 {{ lec.title }}</h1>
+                <div class="doc-meta">
+                    <span><i class="fa-solid fa-book-medical"></i> {{ lec.subject }}</span>
+                    <span><i class="fa-solid fa-layer-group"></i> المحاضرة رقم {{ lec.lecture_number }}</span>
+                    <span><i class="fa-solid fa-shield-halved"></i> منصة نُذاكِر الطبية الذكية</span>
+                </div>
+            </div>
+            <div class="doc-badge">
+                <i class="fa-solid fa-notes-medical"></i>
+                <span>Comprehensive Lecture Study</span>
+            </div>
+        </header>
+
+        <!-- Markdown Rendered Content Area -->
+        <main class="exp-rendered-content" id="explanationTargetArea">
+            <!-- Rendered via marked.js -->
+        </main>
+
+        <!-- Hidden Raw Content for Safe Parsing -->
+        <textarea id="rawExplanationMarkdown" style="display: none;">{{ explanation }}</textarea>
+
+        <!-- Footer -->
+        <footer class="doc-footer">
+            <span>تم استخراج وتنسيق هذا الشرح بواسطة نُذاكِر AI — المنصة الطبية الذكية</span>
+            <span>طبعة مخصصة للمذاكرة والاستذكار</span>
+        </footer>
+    </div>
+
+    <script>
+        function renderMarkdownWithMath(markdownText) {
+            if (!markdownText) return '';
+            let text = String(markdownText);
+            text = text.replace(/\$([^\$\n]+?)\$/g, (m, f) => '$' + f.replace(/[\u2013\u2014]/g, '-') + '$');
+
+            const mathBlocks = [];
+            let processed = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, formula) => {
+                const id = `___MATH_BLOCK_${mathBlocks.length}___`;
+                const cleanFormula = formula.trim().replace(/[\u2013\u2014]/g, '-');
+                let renderedHtml = '';
+                if (window.katex) {
+                    try {
+                        renderedHtml = `<div class="katex-display-wrapper" dir="ltr">${window.katex.renderToString(cleanFormula, { displayMode: true, throwOnError: false })}</div>`;
+                    } catch (e) {
+                        renderedHtml = `<div class="katex-display-wrapper" dir="ltr">$$${cleanFormula}$$</div>`;
+                    }
+                } else {
+                    renderedHtml = `<div class="katex-display-wrapper" dir="ltr">$$${cleanFormula}$$</div>`;
+                }
+                mathBlocks.push(renderedHtml);
+                return id;
+            });
+
+            const inlineMath = [];
+            processed = processed.replace(/(^|[^\\])\$([^\$\n]+?)\$/g, (match, prefix, formula) => {
+                const id = `___MATH_INLINE_${inlineMath.length}___`;
+                const cleanFormula = formula.trim().replace(/[\u2013\u2014]/g, '-');
+                let renderedHtml = '';
+                if (window.katex) {
+                    try {
+                        renderedHtml = `<span class="katex-inline-wrapper" dir="ltr">${window.katex.renderToString(cleanFormula, { displayMode: false, throwOnError: false })}</span>`;
+                    } catch (e) {
+                        renderedHtml = `<span class="katex-inline-wrapper" dir="ltr">$${cleanFormula}$</span>`;
+                    }
+                } else {
+                    renderedHtml = `<span class="katex-inline-wrapper" dir="ltr">$${cleanFormula}$</span>`;
+                }
+                inlineMath.push(renderedHtml);
+                return prefix + id;
+            });
+
+            let html = (typeof marked !== 'undefined') ? marked.parse(processed) : processed;
+
+            mathBlocks.forEach((rendered, i) => {
+                const placeholder = `___MATH_BLOCK_${i}___`;
+                html = html.split(`<p>${placeholder}</p>`).join(rendered);
+                html = html.split(placeholder).join(rendered);
+            });
+
+            inlineMath.forEach((rendered, i) => {
+                const placeholder = `___MATH_INLINE_${i}___`;
+                html = html.split(placeholder).join(rendered);
+            });
+
+            return html;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const raw = document.getElementById('rawExplanationMarkdown').value;
+            const target = document.getElementById('explanationTargetArea');
+            if (raw && raw.trim()) {
+                target.innerHTML = renderMarkdownWithMath(raw);
+
+                target.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, blockquote').forEach(el => {
+                    el.setAttribute('dir', 'auto');
+                });
+
+                // Convert mermaid code blocks
+                target.querySelectorAll('pre code.language-mermaid').forEach(codeEl => {
+                    const pre = codeEl.closest('pre');
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.setAttribute('dir', 'ltr');
+                    div.textContent = codeEl.textContent;
+                    if (pre && pre.parentNode) {
+                        pre.parentNode.replaceChild(div, pre);
+                    }
+                });
+
+                if (window.mermaid) {
+                    try {
+                        mermaid.run({ nodes: target.querySelectorAll('.mermaid') });
+                    } catch (e) {
+                        console.log("Mermaid print error:", e);
+                    }
+                }
+
+                if (window.renderMathInElement) {
+                    try {
+                        renderMathInElement(target, {
+                            delimiters: [
+                                { left: '$$', right: '$$', display: true },
+                                { left: '\\[', right: '\\]', display: true },
+                                { left: '$', right: '$', display: false },
+                                { left: '\\(', right: '\\)', display: false }
+                            ],
+                            throwOnError: false
+                        });
+                    } catch(e) {}
+                }
+            } else {
+                target.innerHTML = '<div style="text-align: center; padding: 40px; color: #64748b;">لم يتم توليد شرح لهذه المحاضرة بعد.</div>';
+            }
+        });
+
+        function exportToPdf() {
+            const element = document.getElementById('pdfDocumentArea');
+            const safeTitle = "{{ lec.title }}".replace(/[^a-zA-Z0-9\u0600-\u06FF]/g, '_');
+            const opt = {
+                margin: [8, 8, 8, 8],
+                filename: `${safeTitle}_شرح_طبي.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    letterRendering: true,
+                    logging: false,
+                    scrollY: 0,
+                    windowWidth: 800
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['h2', 'tr', 'img', '.mermaid'] }
+            };
+
+            const btn = event.currentTarget;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تحضير الـ PDF...';
+            btn.disabled = true;
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }).catch(err => {
+                alert('حدث خطأ أثناء تنزيل الـ PDF: ' + err);
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "nezaker-desktop",
+  "version": "1.0.0",
+  "description": "Nezaker - Medical AI Desktop Application",
+  "main": "main.js",
+  "author": "Antigravity",
+  "license": "MIT"
+}

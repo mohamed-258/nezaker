@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مقارنات طبية | {{ lec.title }}</title>
+    <!-- Google Fonts Arabic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --accent: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            direction: rtl;
+            padding: 30px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Fixed Action Bar for on-screen view */
+        .action-bar {
+            position: sticky;
+            top: 15px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            max-width: 850px;
+            margin: 0 auto 25px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            z-index: 1000;
+        }
+
+        .action-bar .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 15px;
+            color: #38bdf8;
+        }
+
+        .action-bar .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-act {
+            border: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+        }
+        .btn-pdf:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #0d9488, #0f766e);
+            color: #ffffff;
+        }
+        .btn-print:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+        }
+
+        /* Printable Document Container - Perfectly scaled for A4 portrait */
+        .document-container {
+            max-width: 760px;
+            width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 32px 36px;
+            border-radius: 16px;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* Document Header */
+        .doc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .doc-title-group h1 {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .doc-title-group .doc-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 15px;
+        }
+
+        .doc-badge {
+            background: #f0fdfa;
+            color: var(--primary);
+            border: 1px solid #ccfbf1;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Overview Box */
+        .overview-box {
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), rgba(37, 99, 235, 0.05));
+            border: 1.5px solid rgba(13, 148, 136, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 26px;
+            font-size: 13.5px;
+            color: #1e293b;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .overview-box i {
+            color: var(--primary);
+            font-size: 20px;
+            margin-top: 3px;
+        }
+
+        /* Comparison Cards */
+        .comparison-block {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 26px;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        .comp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1.5px dashed #cbd5e1;
+            gap: 12px;
+        }
+
+        .comp-header-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .comp-header-sub {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-top: 2px;
+            direction: ltr;
+            text-align: right;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .comp-tag {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+            border: 1px solid #cbd5e1;
+        }
+
+        .comp-summary {
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        /* Comparison Table */
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            font-size: 13px;
+            border: 1.5px solid #94a3b8;
+        }
+
+        .comp-table thead {
+            display: table-header-group;
+        }
+
+        .comp-table tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        .comp-table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            padding: 10px 14px;
+            text-align: right;
+            border: 1.5px solid #94a3b8 !important;
+            font-weight: 800;
+            font-size: 13px;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .comp-table th.entity-header {
+            background: #f0fdfa !important;
+            color: #0f766e !important;
+            font-size: 13.5px;
+            border: 1.5px solid #94a3b8 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .comp-table td {
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1 !important;
+            vertical-align: top;
+            line-height: 1.55;
+            color: #1e293b;
+        }
+
+        .comp-table tr:nth-child(even) td {
+            background-color: #f8fafc !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .aspect-cell {
+            font-weight: 700;
+            color: #0f172a;
+            background-color: #f1f5f9 !important;
+            width: 26%;
+            border-left: 1.5px solid #94a3b8 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* Feature Alert Boxes */
+        .pearl-card {
+            background: #f0fdf4 !important;
+            border-right: 4px solid var(--success) !important;
+            border: 1px solid #bbf7d0;
+            border-right-width: 4px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12.5px;
+            color: #166534;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .trap-card {
+            background: #fef2f2 !important;
+            border-right: 4px solid var(--danger) !important;
+            border: 1px solid #fecaca;
+            border-right-width: 4px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12.5px;
+            color: #991b1b;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .mnemonic-card {
+            background: #f0f9ff !important;
+            border-right: 4px solid #0284c7 !important;
+            border: 1px solid #bae6fd;
+            border-right-width: 4px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12.5px;
+            color: #075985;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .doc-footer {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Print Media Query */
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+            *, *:before, *:after {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            .action-bar {
+                display: none !important;
+            }
+            .document-container {
+                max-width: 100% !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 10px 15px !important;
+                margin: 0 !important;
+            }
+            .comparison-block {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                border: 1.5px solid #94a3b8 !important;
+                margin-bottom: 20px !important;
+            }
+            .comp-table {
+                border: 1.5px solid #94a3b8 !important;
+            }
+            .comp-table th, .comp-table td {
+                border-color: #94a3b8 !important;
+            }
+            tr {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- On-screen Sticky Action Bar -->
+    <div class="action-bar" id="actionBar">
+        <div class="brand">
+            <i class="fa-solid fa-brain"></i>
+            <span>نُذاكِر | جداول المقارنات المنسقة</span>
+        </div>
+        <div class="btn-group">
+            <button class="btn-act btn-pdf" onclick="exportToPdf()">
+                <i class="fa-solid fa-file-pdf"></i> تحميل PDF منسق
+            </button>
+            <button class="btn-act btn-print" onclick="window.print()">
+                <i class="fa-solid fa-print"></i> طباعة / حفظ
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Document -->
+    <div class="document-container" id="pdfDocumentArea">
+        <!-- Header -->
+        <header class="doc-header">
+            <div class="doc-title-group">
+                <h1>📚 مقارنات وفروقات: {{ lec.title }}</h1>
+                <div class="doc-meta">
+                    <span><i class="fa-solid fa-book-medical"></i> {{ lec.subject }}</span>
+                    <span><i class="fa-solid fa-layer-group"></i> المحاضرة رقم {{ lec.lecture_number }}</span>
+                    <span><i class="fa-solid fa-shield-halved"></i> منصة نُذاكِر الطبية الذكية</span>
+                </div>
+            </div>
+            <div class="doc-badge">
+                <i class="fa-solid fa-scale-balanced"></i>
+                <span>High-Yield Comparisons</span>
+            </div>
+        </header>
+
+        {% if data and data.overview %}
+        <div class="overview-box">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>
+                <strong>نظرة عامة على مقارنات المحاضرة:</strong>
+                <p style="margin-top: 4px;">{{ data.overview }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Comparisons List -->
+        {% if data and data.comparisons and data.comparisons|length > 0 %}
+            {% for comp in data.comparisons %}
+            <article class="comparison-block">
+                <div class="comp-header">
+                    <div>
+                        <div class="comp-header-title" dir="ltr" style="text-align: right;">⚖️ {{ comp.title_en or comp.title_ar }}</div>
+                    </div>
+                    {% if comp.importance %}
+                    <span class="comp-tag"><i class="fa-solid fa-star text-warning"></i> {{ comp.importance }}</span>
+                    {% endif %}
+                </div>
+
+                {% if comp.summary %}
+                <p class="comp-summary">{{ comp.summary }}</p>
+                {% endif %}
+
+                <!-- Comparative Table -->
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th class="aspect-cell">وجه المقارنة (Feature / Aspect)</th>
+                            {% for ent in comp.entities %}
+                            <th class="entity-header">{{ ent }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in comp.table %}
+                        <tr>
+                            <td class="aspect-cell">{{ row['aspect'] if row['aspect'] is defined else row.aspect }}</td>
+                            {% for val in row['values'] %}
+                            <td>{{ val }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- High Yield Pearl -->
+                {% if comp.high_yield_pearl %}
+                <div class="pearl-card">
+                    <i class="fa-solid fa-gem fa-lg" style="margin-top: 3px;"></i>
+                    <div>
+                        <strong>الدرة السريرية (High-Yield Clinical Pearl):</strong>
+                        <p style="margin-top: 2px;">{{ comp.high_yield_pearl }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- MCQ Trap -->
+                {% if comp.mcq_trap %}
+                <div class="trap-card">
+                    <i class="fa-solid fa-triangle-exclamation fa-lg" style="margin-top: 3px;"></i>
+                    <div>
+                        <strong>الفخ الامتحاني (USMLE / Exam MCQ Trap):</strong>
+                        <p style="margin-top: 2px;">{{ comp.mcq_trap }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Mnemonic -->
+                {% if comp.mnemonic %}
+                <div class="mnemonic-card">
+                    <i class="fa-solid fa-lightbulb fa-lg" style="margin-top: 3px;"></i>
+                    <div>
+                        <strong>وسيلة الحفظ السريع (Mnemonic):</strong>
+                        <p style="margin-top: 2px; font-weight: 700;">{{ comp.mnemonic }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </article>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                <i class="fa-solid fa-circle-question fa-3x" style="margin-bottom: 12px; color: #cbd5e1;"></i>
+                <h3>لم يتم استخراج مقارنات لهذه المحاضرة بعد.</h3>
+            </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <footer class="doc-footer">
+            <span>تم استخراج هذا التقرير وتنسيقه بواسطة نُذاكِر AI — منصة كليات الطب المتطورة</span>
+            <span>الصفحة 1 من 1</span>
+        </footer>
+    </div>
+
+    <script>
+        function exportToPdf() {
+            const element = document.getElementById('pdfDocumentArea');
+            const safeTitle = "{{ lec.title }}".replace(/[^a-zA-Z0-9\u0600-\u06FF]/g, '_');
+            const opt = {
+                margin: [8, 8, 8, 8],
+                filename: `${safeTitle}_مقارنات_طبية.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    letterRendering: true,
+                    logging: false,
+                    scrollY: 0,
+                    windowWidth: 800
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['.comparison-block', 'tr', '.pearl-card', '.trap-card', '.mnemonic-card'] }
+            };
+
+            const btn = event.currentTarget;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تحضير الـ PDF...';
+            btn.disabled = true;
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }).catch(err => {
+                alert('حدث خطأ أثناء تنزيل الـ PDF: ' + err);
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
