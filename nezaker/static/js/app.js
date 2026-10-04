@@ -3325,6 +3325,14 @@ async function simplifyQuestionDirect(qId, event) {
 window.simplifyQuestionDirect = simplifyQuestionDirect;
 
 async function submitAnswer(qId, selectedOption) {
+    const optionGroup = document.getElementById(`opt-group-${qId}`);
+    if (optionGroup) {
+        optionGroup.querySelectorAll('.q-opt-btn').forEach(button => {
+            const isSelected = button.innerText.trim().charAt(0) === selectedOption;
+            button.classList.toggle('selected', isSelected);
+        });
+    }
+
     try {
         const res = await fetch(`/api/question/${qId}/answer`, {
             method: 'POST',
