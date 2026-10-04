@@ -297,29 +297,29 @@
                 <section class="premium-dashboard" aria-labelledby="dashboard-title">
                     <div class="welcome-panel">
                         <div>
-                            <p class="eyebrow">GOOD MORNING, MOHAMMED <span aria-hidden="true">👋</span></p>
+                            <p class="eyebrow">خطة اليوم <span aria-hidden="true">✦</span></p>
                             <h2 id="dashboard-title" lang="ar">ماذا ستذاكر اليوم؟</h2>
-                            <p>Continue your journey and make progress every day.</p>
+                            <p>رتّب أولوياتك، ابدأ جلسة قصيرة، وتابع تقدّمك خطوة بخطوة.</p>
                         </div>
-                        <button class="btn btn-primary dashboard-cta" onclick="switchTab('lectures')"><i class="fa-solid fa-play"></i> ابدأ المذاكرة</button>
+                        <button class="btn btn-primary dashboard-cta" onclick="switchTab('lectures')"><i class="fa-solid fa-play"></i> ابدأ جلسة الآن</button>
                     </div>
                     <div class="quick-stats-grid" aria-label="ملخص الدراسة">
-                        <button class="quick-stat stat-indigo" onclick="switchTab('lectures')"><span class="quick-stat-icon"><i class="fa-solid fa-book-open"></i></span><span><b id="uiSubjectCount">—</b><small>Subjects</small><em>Explore your lectures</em></span><i class="fa-solid fa-arrow-left"></i></button>
-                        <button class="quick-stat stat-sky" onclick="switchTab('questions')"><span class="quick-stat-icon"><i class="fa-solid fa-circle-question"></i></span><span><b id="uiQuestionCount">—</b><small>Questions</small><em>Practice &amp; improve</em></span><i class="fa-solid fa-arrow-left"></i></button>
-                        <button class="quick-stat stat-violet" onclick="switchTab('flashcards')"><span class="quick-stat-icon"><i class="fa-solid fa-layer-group"></i></span><span><b id="uiFlashcardCount">—</b><small>Flashcards</small><em>Ready for review</em></span><i class="fa-solid fa-arrow-left"></i></button>
-                        <button class="quick-stat stat-amber" onclick="switchTab('audio')"><span class="quick-stat-icon"><i class="fa-solid fa-note-sticky"></i></span><span><b id="uiLectureCount">—</b><small>Notes &amp; lectures</small><em>Your study library</em></span><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="quick-stat stat-indigo" onclick="switchTab('lectures')"><span class="quick-stat-icon"><i class="fa-solid fa-book-open"></i></span><span><b id="uiSubjectCount">—</b><small>المواد</small><em>استكشف محاضراتك</em></span><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="quick-stat stat-sky" onclick="switchTab('questions')"><span class="quick-stat-icon"><i class="fa-solid fa-circle-question"></i></span><span><b id="uiQuestionCount">—</b><small>الأسئلة</small><em>تدرّب وحسّن مستواك</em></span><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="quick-stat stat-violet" onclick="switchTab('flashcards')"><span class="quick-stat-icon"><i class="fa-solid fa-layer-group"></i></span><span><b id="uiFlashcardCount">—</b><small>البطاقات</small><em>جاهزة للمراجعة</em></span><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="quick-stat stat-amber" onclick="switchTab('audio')"><span class="quick-stat-icon"><i class="fa-solid fa-note-sticky"></i></span><span><b id="uiLectureCount">—</b><small>المحاضرات</small><em>مكتبتك الدراسية</em></span><i class="fa-solid fa-arrow-left"></i></button>
                     </div>
                     <div class="dashboard-focus-grid">
                         <article class="continue-card">
-                            <div class="card-label"><span><i class="fa-solid fa-arrow-rotate-right"></i> Continue studying</span><button class="icon-ghost" aria-label="خيارات"><i class="fa-solid fa-ellipsis"></i></button></div>
-                            <div class="continue-content"><div class="subject-orb"><i class="fa-solid fa-brain"></i></div><div><span class="subject-name" id="uiContinueSubject">Your medical curriculum</span><h3 id="uiContinueLecture">Choose a lecture to begin</h3><p><span id="uiContinueQuestions">0</span> questions completed</p></div></div>
+                            <div class="card-label"><span><i class="fa-solid fa-arrow-rotate-right"></i> تابع من حيث توقفت</span><button class="icon-ghost" aria-label="خيارات"><i class="fa-solid fa-ellipsis"></i></button></div>
+                            <div class="continue-content"><div class="subject-orb"><i class="fa-solid fa-brain"></i></div><div><span class="subject-name" id="uiContinueSubject">منهجك الطبي</span><h3 id="uiContinueLecture">اختر محاضرة لتبدأ</h3><p><span id="uiContinueQuestions">0</span> سؤالاً تم حله</p></div></div>
                             <div class="progress-line"><span id="uiContinueProgress" style="width: 0%"></span></div>
-                            <div class="continue-footer"><span><b id="uiContinuePercent">0%</b> complete</span><button class="btn btn-primary btn-sm" onclick="switchTab('lectures')">Continue <i class="fa-solid fa-arrow-left"></i></button></div>
+                            <div class="continue-footer"><span><b id="uiContinuePercent">0%</b> مكتمل</span><button class="btn btn-primary btn-sm" onclick="switchTab('lectures')">متابعة <i class="fa-solid fa-arrow-left"></i></button></div>
                         </article>
                         <article class="progress-card">
-                            <div><span class="card-label-text">YOUR PROGRESS</span><h3>Keep your momentum</h3><p>Small study sessions add up.</p></div>
-                            <div class="progress-ring" id="uiProgressRing"><div><b id="uiProgressPercent">0%</b><small>overall</small></div></div>
-                            <div class="progress-metrics"><span><i class="fa-solid fa-circle-check"></i><b id="uiCompletedLectures">0</b> lectures</span><span><i class="fa-solid fa-clock"></i><b>0h</b> study time</span></div>
+                            <div><span class="card-label-text">تقدّمك العام</span><h3>حافظ على استمراريتك</h3><p>الجلسات الصغيرة تصنع فرقاً كبيراً.</p></div>
+                            <div class="progress-ring" id="uiProgressRing"><div><b id="uiProgressPercent">0%</b><small>إجمالاً</small></div></div>
+                            <div class="progress-metrics"><span><i class="fa-solid fa-circle-check"></i><b id="uiCompletedLectures">0</b> محاضرات</span><span><i class="fa-solid fa-clock"></i><b>0س</b> وقت الدراسة</span></div>
                         </article>
                     </div>
                 </section>
