@@ -248,6 +248,9 @@
                     <input type="text" id="globalSearchInput" placeholder="ابحث عن أي محاضرة، مصطلح طبي، أو متلازمة سريرية..." oninput="handleGlobalSearch(event)">
                 </div>
                 <div class="header-actions">
+                    <button class="header-icon-button sidebar-toggle" type="button" onclick="toggleSidebar()" aria-label="طي القائمة الجانبية" title="طي القائمة الجانبية"><i class="fa-solid fa-bars"></i></button>
+                    <button class="header-icon-button" type="button" onclick="toggleColorTheme()" aria-label="تبديل المظهر" title="تبديل المظهر"><i id="themeToggleIcon" class="fa-solid fa-moon"></i></button>
+                    <button class="header-icon-button notification-button" type="button" aria-label="التنبيهات" title="التنبيهات"><i class="fa-regular fa-bell"></i><span></span></button>
                     <!-- Global Voice / Audio Active Controller Pill -->
                     <div id="globalAudioControlContainer" class="global-audio-header-pill" style="display: none;">
                         <span class="audio-pulse-dot"></span>
@@ -286,6 +289,35 @@
 
             <!-- TAB 1: HOME PAGE & STUDY WORKSPACES (الصفحة الرئيسية ومكتبة جلسات الكتب والمقررات) -->
             <section id="tab-home" class="tab-pane active">
+                <section class="premium-dashboard" aria-labelledby="dashboard-title">
+                    <div class="welcome-panel">
+                        <div>
+                            <p class="eyebrow">GOOD MORNING, MOHAMMED <span aria-hidden="true">👋</span></p>
+                            <h2 id="dashboard-title" lang="ar">ماذا ستذاكر اليوم؟</h2>
+                            <p>Continue your journey and make progress every day.</p>
+                        </div>
+                        <button class="btn btn-primary dashboard-cta" onclick="switchTab('lectures')"><i class="fa-solid fa-play"></i> ابدأ المذاكرة</button>
+                    </div>
+                    <div class="quick-stats-grid" aria-label="ملخص الدراسة">
+                        <button class="quick-stat stat-indigo" onclick="switchTab('lectures')"><span class="quick-stat-icon"><i class="fa-solid fa-book-open"></i></span><span><b id="uiSubjectCount">—</b><small>Subjects</small><em>Explore your lectures</em></span><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="quick-stat stat-sky" onclick="switchTab('questions')"><span class="quick-stat-icon"><i class="fa-solid fa-circle-question"></i></span><span><b id="uiQuestionCount">—</b><small>Questions</small><em>Practice &amp; improve</em></span><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="quick-stat stat-violet" onclick="switchTab('flashcards')"><span class="quick-stat-icon"><i class="fa-solid fa-layer-group"></i></span><span><b id="uiFlashcardCount">—</b><small>Flashcards</small><em>Ready for review</em></span><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="quick-stat stat-amber" onclick="switchTab('audio')"><span class="quick-stat-icon"><i class="fa-solid fa-note-sticky"></i></span><span><b id="uiLectureCount">—</b><small>Notes &amp; lectures</small><em>Your study library</em></span><i class="fa-solid fa-arrow-left"></i></button>
+                    </div>
+                    <div class="dashboard-focus-grid">
+                        <article class="continue-card">
+                            <div class="card-label"><span><i class="fa-solid fa-arrow-rotate-right"></i> Continue studying</span><button class="icon-ghost" aria-label="خيارات"><i class="fa-solid fa-ellipsis"></i></button></div>
+                            <div class="continue-content"><div class="subject-orb"><i class="fa-solid fa-brain"></i></div><div><span class="subject-name" id="uiContinueSubject">Your medical curriculum</span><h3 id="uiContinueLecture">Choose a lecture to begin</h3><p><span id="uiContinueQuestions">0</span> questions completed</p></div></div>
+                            <div class="progress-line"><span id="uiContinueProgress" style="width: 0%"></span></div>
+                            <div class="continue-footer"><span><b id="uiContinuePercent">0%</b> complete</span><button class="btn btn-primary btn-sm" onclick="switchTab('lectures')">Continue <i class="fa-solid fa-arrow-left"></i></button></div>
+                        </article>
+                        <article class="progress-card">
+                            <div><span class="card-label-text">YOUR PROGRESS</span><h3>Keep your momentum</h3><p>Small study sessions add up.</p></div>
+                            <div class="progress-ring" id="uiProgressRing"><div><b id="uiProgressPercent">0%</b><small>overall</small></div></div>
+                            <div class="progress-metrics"><span><i class="fa-solid fa-circle-check"></i><b id="uiCompletedLectures">0</b> lectures</span><span><i class="fa-solid fa-clock"></i><b>0h</b> study time</span></div>
+                        </article>
+                    </div>
+                </section>
                 <!-- 1. Home Command Hero Banner -->
                 <div class="home-hero-banner" style="background: linear-gradient(135deg, rgba(13, 148, 136, 0.18), rgba(37, 99, 235, 0.14)); border: 1px solid rgba(13, 148, 136, 0.3); border-radius: 16px; padding: 22px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                     <div>

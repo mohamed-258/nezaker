@@ -146,6 +146,7 @@ const TRANSLATIONS = {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
+    initColorTheme();
     requestDesktopNotificationPermission();
     applyAppLanguage(currentAppLanguage);
     initAudioSystemListeners();
@@ -162,7 +163,69 @@ async function loadInitialData() {
     await loadRedoSummaryBadge();
     await loadReferenceBooksList();
     await loadAppSettings();
+    refreshPremiumDashboard();
     startRedoDueChecker();
+}
+
+// Visual preferences are intentionally client-side: they never affect study data.
+function initColorTheme() {
+    const savedTheme = localStorage.getItem('nezaker_theme') || 'light';
+    document.body.classList.toggle('dark-theme', savedTheme === 'dark');
+    document.body.classList.toggle('light-theme', savedTheme !== 'dark');
+    updateThemeIcon(savedTheme);
+}
+
+function toggleColorTheme() {
+    const theme = document.body.classList.contains('dark-theme') ? 'light' : 'dark';
+    document.body.classList.toggle('dark-theme', theme === 'dark');
+    document.body.classList.toggle('light-theme', theme !== 'dark');
+    localStorage.setItem('nezaker_theme', theme);
+    updateThemeIcon(theme);
+}
+
+function updateThemeIcon(theme) {
+    const icon = document.getElementById('themeToggleIcon');
+    if (icon) icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+}
+
+function toggleSidebar() {
+    document.querySelector('.app-container')?.classList.toggle('sidebar-collapsed');
+}
+
+async function refreshPremiumDashboard() {
+    const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+    const lectures = Array.isArray(allLectures) ? allLectures : [];
+    const subjects = new Set(lectures.map(l => l.subject).filter(Boolean));
+    const completed = lectures.filter(l => l.is_completed || l.completed || l.status === 'completed').length;
+    setText('uiSubjectCount', subjects.size || '0');
+    setText('uiLectureCount', lectures.length || '0');
+    setText('uiCompletedLectures', completed);
+    const current = lectures.find(l => !l.is_completed && !l.completed) || lectures[0];
+    if (current) {
+        setText('uiContinueSubject', current.subject || 'Medical studies');
+        setText('uiContinueLecture', current.title || current.name || 'Continue your current lecture');
+        const progress = Number(current.progress || current.progress_percent || 0);
+        const progressEl = document.getElementById('uiContinueProgress');
+        if (progressEl) progressEl.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+        setText('uiContinuePercent', `${Math.round(progress)}%`);
+    }
+    const overall = lectures.length ? Math.round((completed / lectures.length) * 100) : 0;
+    setText('uiProgressPercent', `${overall}%`);
+    const ring = document.getElementById('uiProgressRing');
+    if (ring) ring.style.setProperty('--progress', `${overall}%`);
+    try {
+        const [questionsResponse, cardsResponse] = await Promise.all([fetch('/api/questions'), fetch('/api/flashcards')]);
+        const questions = questionsResponse.ok ? await questionsResponse.json() : [];
+        const cards = cardsResponse.ok ? await cardsResponse.json() : [];
+        const questionItems = Array.isArray(questions) ? questions : (questions.questions || []);
+        const cardItems = Array.isArray(cards) ? cards : (cards.flashcards || []);
+        setText('uiQuestionCount', questionItems.length || '0');
+        setText('uiFlashcardCount', cardItems.length || '0');
+        setText('uiContinueQuestions', questionItems.filter(q => q.is_answered || q.user_answer).length || '0');
+    } catch (error) {
+        // The existing application remains usable even when optional summary calls fail.
+        console.warn('Could not load dashboard summary', error);
+    }
 }
 
 function toggleGlobalAppLanguage() {
@@ -13115,6 +13178,5 @@ function handleBatchAuditCompleted(data) {
     playCompletionChime('success');
     showToast('اكتمل تدقيق الملف بنجاح! الملفات جاهزة للتحميل 🏆', 'success', 9000);
 }
-
 
 
